@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // Next
 import { GetStaticProps, GetStaticPaths, NextPage } from 'next';
@@ -13,13 +13,25 @@ import { pokeApi } from '../../api';
 // Interface
 import { Pokemon } from '../../interfaces';
 
+// Utils
+import { localFavorites } from '../../utils';
+
 interface Props {
   pokemon: Pokemon;
 }
 
 const PokemonPage: NextPage<Props> = ({ pokemon }) => {
+  const [isInfavorites, setIsInfavorites] = useState(
+    localFavorites.existInFavorites(pokemon.id)
+  );
+
+  const onToggleFavorite = () => {
+    localFavorites.toggleFavorite(pokemon.id);
+    setIsInfavorites(!isInfavorites);
+  };
+
   return (
-    <Layout title='Pokemon'>
+    <Layout title={pokemon.name}>
       <Grid.Container
         css={{
           marginTop: '5px',
@@ -54,8 +66,14 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
               <Text h1 transform='capitalize'>
                 {pokemon.name}
               </Text>
-              <Button ghost color='gradient'>
-                Guardar en favoritos
+              <Button
+                ghost={!isInfavorites}
+                color='gradient'
+                onClick={onToggleFavorite}
+              >
+                {isInfavorites
+                  ? 'Eliminar de favoritos'
+                  : 'Guardar en favoritos'}
               </Button>
             </Card.Header>
             <Card.Body>
